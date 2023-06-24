@@ -1,4 +1,4 @@
-class NewThread {
+class AddedThread {
     constructor(payload) {
         this._verifyPayload(payload);
 
@@ -18,6 +18,6 @@ class NewThread {
             throw new Error("ADDED_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION");
         }
     }
-};
+}
 
-module.exports = NewThread;
+module.exports = AddedThread;
