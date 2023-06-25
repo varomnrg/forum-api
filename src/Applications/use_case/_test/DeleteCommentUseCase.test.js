@@ -1,5 +1,6 @@
 const CommentRepository = require("../../../Domains/comments/CommentRepository");
 const DeleteCommentUseCase = require("../DeleteCommentUseCase");
+const ThreadRepository = require("../../../Domains/threads/ThreadRepository");
 
 describe("DeleteCommentUseCase", () => {
     it("should throw error if use case payload not contain needed property", async () => {
@@ -33,18 +34,23 @@ describe("DeleteCommentUseCase", () => {
             owner: "user-123",
         };
         const mockCommentRepository = new CommentRepository();
+        const mockThreadRepository = new ThreadRepository();
+
+        mockThreadRepository.isThreadExist = jest.fn().mockImplementation(() => Promise.resolve());
         mockCommentRepository.verifyCommentAccess = jest.fn().mockImplementation(() => Promise.resolve());
         mockCommentRepository.deleteComment = jest.fn().mockImplementation(() => Promise.resolve());
 
         const deleteCommentUseCase = new DeleteCommentUseCase({
             commentRepository: mockCommentRepository,
+            threadRepository: mockThreadRepository,
         });
 
         // Action
         await deleteCommentUseCase.execute(useCasePayload);
 
         // Assert
-        expect(mockCommentRepository.verifyCommentAccess).toHaveBeenCalledWith(useCasePayload.threadId, useCasePayload.commentId, useCasePayload.owner);
+        expect(mockThreadRepository.isThreadExist).toHaveBeenCalledWith(useCasePayload.threadId);
+        expect(mockCommentRepository.verifyCommentAccess).toHaveBeenCalledWith(useCasePayload.commentId, useCasePayload.owner);
         expect(mockCommentRepository.deleteComment).toHaveBeenCalledWith(useCasePayload.commentId);
     });
 });
