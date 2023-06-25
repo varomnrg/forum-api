@@ -19,6 +19,8 @@ DomainErrorTranslator._directories = {
     "DELETE_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION": new InvariantError("refresh token harus string"),
     "NEW_THREAD.NOT_CONTAIN_NEEDED_PROPERTY": new InvariantError("gagal memasukan, harus memberikan judul dan isi"),
     "NEW_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION": new InvariantError("title dan body harus string"),
+    "NEW_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY": new InvariantError("gagal memasukan, harus memberikan isi komentar, pemilik komentar, dan id thread"),
+    "NEW_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION": new InvariantError("content, owner, dan threadId harus string"),
 };
 
 module.exports = DomainErrorTranslator;

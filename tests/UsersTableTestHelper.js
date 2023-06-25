@@ -9,7 +9,6 @@ const UsersTableTestHelper = {
         };
 
         await pool.query(query);
-        console.log("addUser");
     },
 
     async findUsersById(id) {
