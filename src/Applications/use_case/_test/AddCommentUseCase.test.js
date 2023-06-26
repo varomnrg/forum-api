@@ -1,6 +1,7 @@
 const AddCommentUseCase = require("../AddCommentUseCase");
 const AddedComment = require("../../../Domains/comments/entities/AddedComment");
 const CommentRepository = require("../../../Domains/comments/CommentRepository");
+const ThreadRepository = require("../../../Domains/threads/ThreadRepository");
 const NewComment = require("../../../Domains/comments/entities/NewComment");
 
 describe("AddCommentUseCase", () => {
@@ -20,13 +21,16 @@ describe("AddCommentUseCase", () => {
 
         // Calling the use case
         const mockCommentRepository = new CommentRepository();
+        const mockThreadRepository = new ThreadRepository();
 
         // Mock Function
+        mockThreadRepository.isThreadExist = jest.fn().mockImplementation(() => Promise.resolve());
         mockCommentRepository.addComment = jest.fn().mockImplementation(() => Promise.resolve(mockAddedComment));
 
         // Creating use case instance
         const addCommentUseCase = new AddCommentUseCase({
             commentRepository: mockCommentRepository,
+            threadRepository: mockThreadRepository,
         });
 
         // Action

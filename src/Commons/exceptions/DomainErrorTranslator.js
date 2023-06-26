@@ -21,6 +21,8 @@ DomainErrorTranslator._directories = {
     "NEW_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION": new InvariantError("title dan body harus string"),
     "NEW_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY": new InvariantError("gagal memasukan, harus memberikan isi komentar, pemilik komentar, dan id thread"),
     "NEW_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION": new InvariantError("content, owner, dan threadId harus string"),
+    "DELETE_COMMENT_USE_CASE.NOT_CONTAIN_NEEDED_PROPERTY": new InvariantError("harus mengirimkan threadId, commentId, dan owner"),
+    "DELETE_COMMENT_USE_CASE.NOT_MEET_DATA_TYPE_SPECIFICATION": new InvariantError("threadId, commentId, dan owner harus string"),
 };
 
 module.exports = DomainErrorTranslator;
