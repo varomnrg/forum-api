@@ -1,6 +1,7 @@
 const GetThreadDetailUseCase = require("../GetThreadDetailUseCase");
 const ThreadDetail = require("../../../Domains/threads/entities/DetailThread");
 const ThreadRepository = require("../../../Domains/threads/ThreadRepository");
+const CommentRepository = require("../../../Domains/comments/CommentRepository");
 
 describe("GetThreadDetailUseCase", () => {
     it("should orchestrating the get thread detail action correctly", () => {
@@ -16,15 +17,33 @@ describe("GetThreadDetailUseCase", () => {
             comments: [],
         });
 
+        const mockComment = [
+            {
+                id: "comment-123",
+                username: "user",
+                date: "date",
+                content: "comment",
+            },
+            {
+                id: "comment-124",
+                username: "user",
+                date: "date",
+                content: "comment",
+            },
+        ];
+
         // Calling the use case
         const mockThreadRepository = new ThreadRepository();
+        const mockCommentRepository = new CommentRepository();
 
         // Mock Functions
         mockThreadRepository.getThreadById = jest.fn().mockImplementation(() => Promise.resolve(mockThreadDetail));
+        mockCommentRepository.getCommentsByThreadId = jest.fn().mockImplementation(() => Promise.resolve(mockComment));
 
         // Creating use case instance
         const getThreadDetailUseCase = new GetThreadDetailUseCase({
             threadRepository: mockThreadRepository,
+            commentRepository: mockCommentRepository,
         });
 
         // Action
@@ -38,7 +57,20 @@ describe("GetThreadDetailUseCase", () => {
                 body: "body",
                 date: "date",
                 username: "user",
-                comments: [],
+                comments: [
+                    {
+                        id: "comment-123",
+                        username: "user",
+                        date: "date",
+                        content: "comment",
+                    },
+                    {
+                        id: "comment-124",
+                        username: "user",
+                        date: "date",
+                        content: "comment",
+                    },
+                ],
             })
         );
 

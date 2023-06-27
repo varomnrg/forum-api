@@ -90,7 +90,7 @@ describe("ThreadRepositoryPostgres", () => {
                     id: expect.any(String),
                     title: expect.any(String),
                     body: expect.any(String),
-                    owner: expect.any(String),
+                    username: expect.any(String),
                     date: expect.any(String),
                 })
             );

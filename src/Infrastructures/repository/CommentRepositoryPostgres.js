@@ -62,6 +62,17 @@ class CommentRepositoryPostgres extends CommentRepository {
             throw new AuthorizationError("Anda tidak berhak mengakses resource ini");
         }
     }
+
+    async getCommentsByThreadId(threadId) {
+        const query = {
+            text: "SELECT comments.*, users.username FROM comments INNER JOIN users ON comments.owner = users.id WHERE comments.thread_id = $1",
+            values: [threadId],
+        };
+
+        const result = await this._pool.query(query);
+
+        return result.rows;
+    }
 }
 
 module.exports = CommentRepositoryPostgres;

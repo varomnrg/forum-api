@@ -111,4 +111,23 @@ describe("CommentRepository postgres", () => {
             await expect(commentRepositoryPostgres.getCommentById("comment-123")).rejects.toThrowError("Comment tidak ditemukan");
         });
     });
+
+    describe("getCommentsByThreadId function", () => {
+        it("should return comments correctly", async () => {
+            // Arrange
+            const fakeIdGenerator = () => "123";
+            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+
+            await UsersTableTestHelper.addUser({ id: "user-123", username: "varo" });
+            await ThreadsTableTestHelper.addThread({});
+            await CommentsTableTestHelper.addComment({});
+            await CommentsTableTestHelper.addComment({ id: "comment-321", thread_id: "thread-123" });
+
+            // Action
+            const comments = await commentRepositoryPostgres.getCommentsByThreadId("thread-123");
+
+            // Assert
+            expect(comments).toHaveLength(2);
+        });
+    });
 });

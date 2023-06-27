@@ -130,4 +130,80 @@ describe("/threads endpoint", () => {
             expect(responseJson.message).toEqual("Missing authentication");
         });
     });
+
+    describe("when GET /threads/{threadId}", () => {
+        it("should response 200 and return the thread details", async () => {
+            // Arrange
+            const authPayload = {
+                username: "dicoding",
+                password: "secret",
+            };
+
+            const server = await createServer(container);
+            await server.inject({
+                method: "POST",
+                url: "/users",
+                payload: {
+                    username: "dicoding",
+                    password: "secret",
+                    fullname: "Dicoding Indonesia",
+                },
+            });
+
+            const responseAuth = await server.inject({
+                method: "POST",
+                url: "/authentications",
+                payload: authPayload,
+            });
+
+            const threadResponse = await server.inject({
+                method: "POST",
+                url: "/threads",
+                payload: {
+                    title: "title",
+                    body: "body",
+                },
+                headers: {
+                    Authorization: `Bearer ${JSON.parse(responseAuth.payload).data.accessToken}`,
+                },
+            });
+
+            await server.inject({
+                method: "POST",
+                url: `/threads/${JSON.parse(threadResponse.payload).data.addedThread.id}/comments`,
+                payload: {
+                    content: "comment1",
+                },
+                headers: {
+                    Authorization: `Bearer ${JSON.parse(responseAuth.payload).data.accessToken}`,
+                },
+            });
+
+            await server.inject({
+                method: "POST",
+                url: `/threads/${JSON.parse(threadResponse.payload).data.addedThread.id}/comments`,
+                payload: {
+                    content: "comment2",
+                },
+                headers: {
+                    Authorization: `Bearer ${JSON.parse(responseAuth.payload).data.accessToken}`,
+                },
+            });
+
+            // Action
+
+            const response = await server.inject({
+                method: "GET",
+                url: `/threads/${JSON.parse(threadResponse.payload).data.addedThread.id}`,
+            });
+
+            // Assert
+            const responseJson = JSON.parse(response.payload);
+            expect(response.statusCode).toEqual(200);
+            expect(responseJson.status).toEqual("success");
+            expect(responseJson.data.thread).toBeDefined();
+            expect(responseJson.data.thread.comments).toBeDefined();
+            expect(responseJson.data.thread.comments).toHaveLength(2);
+        });
+    });
 });
