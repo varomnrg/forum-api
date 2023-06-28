@@ -130,4 +130,31 @@ describe("CommentRepository postgres", () => {
             expect(comments).toHaveLength(2);
         });
     });
+
+    describe("isCommentExist function", () => {
+        it("should throw NotFoundError when comment not found", async () => {
+            // Arrange
+            const fakeIdGenerator = () => "123";
+            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+
+            // Action & Assert
+            await expect(commentRepositoryPostgres.isCommentExist("comment-123")).rejects.toThrowError("Comment tidak ditemukan");
+        });
+
+        it("should return true when comment is found", async () => {
+            // Arrange
+            const fakeIdGenerator = () => "123";
+            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+
+            await UsersTableTestHelper.addUser({ id: "user-123", username: "varo" });
+            await ThreadsTableTestHelper.addThread({});
+            await CommentsTableTestHelper.addComment({});
+
+            // Action
+            const isCommentExist = await commentRepositoryPostgres.isCommentExist("comment-123");
+
+            // Assert
+            expect(isCommentExist).toEqual(true);
+        });
+    });
 });

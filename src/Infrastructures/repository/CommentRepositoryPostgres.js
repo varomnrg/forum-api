@@ -73,6 +73,12 @@ class CommentRepositoryPostgres extends CommentRepository {
 
         return result.rows;
     }
+
+    async isCommentExist(commentId) {
+        await this.getCommentById(commentId);
+
+        return true;
+    }
 }
 
 module.exports = CommentRepositoryPostgres;
