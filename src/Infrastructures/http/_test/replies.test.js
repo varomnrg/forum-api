@@ -1,73 +1,30 @@
-const pool = require("../../database/postgres/pool");
+const UsersTableTestHelper = require("../../../../tests/UsersTableTestHelper");
+const ThreadsTableTestHelper = require("../../../../tests/ThreadsTableTestHelper");
+const AuthenticationsTableTestHelper = require("../../../../tests/AuthenticationsTableTestHelper");
+const CommentsTableTestHelper = require("../../../../tests/CommentsTableTestHelper");
+const RepliesTableTestHelper = require("../../../../tests/RepliesTableTestHelper");
 const createServer = require("../createServer");
 const container = require("../../container");
-const UsersTableTestHelper = require("../../../../tests/UsersTableTestHelper");
-const AuthenticationsTableTestHelper = require("../../../../tests/AuthenticationsTableTestHelper");
-const ThreadTableTestHelper = require("../../../../tests/ThreadsTableTestHelper");
+const pool = require("../../database/postgres/pool");
 
-describe("/threads endpoint", () => {
+describe("/replies endpoint", () => {
     afterAll(async () => {
         await pool.end();
     });
 
     afterEach(async () => {
-        await ThreadTableTestHelper.cleanTable();
         await UsersTableTestHelper.cleanTable();
+        await ThreadsTableTestHelper.cleanTable();
         await AuthenticationsTableTestHelper.cleanTable();
+        await CommentsTableTestHelper.cleanTable();
+        await RepliesTableTestHelper.cleanTable();
     });
 
-    describe("when POST /threads", () => {
-        it("should response 201 and make a new thread", async () => {
+    describe("when POST /threads/{threadId}/comments/{commentId}/replies", () => {
+        it("should response 201 and persisted reply", async () => {
             // Arrange
             const requestPayload = {
-                title: "title",
-                body: "body",
-            };
-            const authPayload = {
-                username: "dicoding",
-                password: "secret",
-            };
-
-            const server = await createServer(container);
-
-            await server.inject({
-                method: "POST",
-                url: "/users",
-                payload: {
-                    username: "dicoding",
-                    password: "secret",
-                    fullname: "Dicoding Indonesia",
-                },
-            });
-
-            const responseAuth = await server.inject({
-                method: "POST",
-                url: "/authentications",
-                payload: authPayload,
-            });
-
-            // Action
-            const response = await server.inject({
-                method: "POST",
-                url: "/threads",
-                payload: requestPayload,
-                headers: {
-                    Authorization: `Bearer ${JSON.parse(responseAuth.payload).data.accessToken}`,
-                },
-            });
-
-            // Assert
-            const responseJson = JSON.parse(response.payload);
-
-            expect(response.statusCode).toEqual(201);
-            expect(responseJson.status).toEqual("success");
-            expect(responseJson.data.addedThread).toBeDefined();
-        });
-
-        it("should response 400 when payload does not contain needed property", async () => {
-            // Arrange
-            const requestPayload = {
-                title: "Test",
+                content: "content",
             };
 
             const authPayload = {
@@ -76,70 +33,7 @@ describe("/threads endpoint", () => {
             };
 
             const server = await createServer(container);
-            await server.inject({
-                method: "POST",
-                url: "/users",
-                payload: {
-                    username: "dicoding",
-                    password: "secret",
-                    fullname: "Dicoding Indonesia",
-                },
-            });
 
-            const responseAuth = await server.inject({
-                method: "POST",
-                url: "/authentications",
-                payload: authPayload,
-            });
-
-            // Action
-            const response = await server.inject({
-                method: "POST",
-                url: "/threads",
-                payload: requestPayload,
-                headers: {
-                    Authorization: `Bearer ${JSON.parse(responseAuth.payload).data.accessToken}`,
-                },
-            });
-
-            // Assert
-            const responseJson = JSON.parse(response.payload);
-            expect(response.statusCode).toEqual(400);
-            expect(responseJson.status).toEqual("fail");
-            expect(responseJson.message).toEqual("gagal memasukan, harus memberikan judul dan isi");
-        });
-
-        it("should response 401 when request authentication not contain access token", async () => {
-            // Arrange
-            const requestPayload = {
-                title: "Test",
-                body: "Test",
-            };
-            const server = await createServer(container);
-
-            // Action
-            const response = await server.inject({
-                method: "POST",
-                url: "/threads",
-                payload: requestPayload,
-            });
-
-            // Assert
-            const responseJson = JSON.parse(response.payload);
-            expect(response.statusCode).toEqual(401);
-            expect(responseJson.message).toEqual("Missing authentication");
-        });
-    });
-
-    describe("when GET /threads/{threadId}", () => {
-        it("should response 200 and return the thread details", async () => {
-            // Arrange
-            const authPayload = {
-                username: "dicoding",
-                password: "secret",
-            };
-
-            const server = await createServer(container);
             await server.inject({
                 method: "POST",
                 url: "/users",
@@ -168,23 +62,89 @@ describe("/threads endpoint", () => {
                 },
             });
 
-            await server.inject({
+            const responseComment = await server.inject({
                 method: "POST",
                 url: `/threads/${JSON.parse(threadResponse.payload).data.addedThread.id}/comments`,
+                payload: requestPayload,
+                headers: {
+                    Authorization: `Bearer ${JSON.parse(responseAuth.payload).data.accessToken}`,
+                },
+            });
+
+            // Action
+            const response = await server.inject({
+                method: "POST",
+                url: `/threads/${JSON.parse(threadResponse.payload).data.addedThread.id}/comments/${JSON.parse(responseComment.payload).data.addedComment.id}/replies`,
+                payload: requestPayload,
+                headers: {
+                    Authorization: `Bearer ${JSON.parse(responseAuth.payload).data.accessToken}`,
+                },
+            });
+
+            // Assert
+            const responseJson = JSON.parse(response.payload);
+
+            expect(response.statusCode).toEqual(201);
+            expect(responseJson.status).toEqual("success");
+            expect(responseJson.data.addedReply).toBeDefined();
+        });
+    });
+
+    describe("when DELETE /threads/{threadId}/comments/{commentId}/replies/{replyId}", () => {
+        it("should response 200 and delete reply", async () => {
+            // Arrange
+            const requestPayload = {
+                content: "content",
+            };
+
+            const authPayload = {
+                username: "dicoding",
+                password: "secret",
+            };
+
+            const server = await createServer(container);
+
+            await server.inject({
+                method: "POST",
+                url: "/users",
                 payload: {
-                    content: "comment1",
+                    username: "dicoding",
+                    password: "secret",
+                    fullname: "Dicoding Indonesia",
+                },
+            });
+
+            const responseAuth = await server.inject({
+                method: "POST",
+                url: "/authentications",
+                payload: authPayload,
+            });
+
+            const threadResponse = await server.inject({
+                method: "POST",
+                url: "/threads",
+                payload: {
+                    title: "title",
+                    body: "body",
                 },
                 headers: {
                     Authorization: `Bearer ${JSON.parse(responseAuth.payload).data.accessToken}`,
                 },
             });
 
-            await server.inject({
+            const commentResponse = await server.inject({
                 method: "POST",
                 url: `/threads/${JSON.parse(threadResponse.payload).data.addedThread.id}/comments`,
-                payload: {
-                    content: "comment2",
+                payload: requestPayload,
+                headers: {
+                    Authorization: `Bearer ${JSON.parse(responseAuth.payload).data.accessToken}`,
                 },
+            });
+
+            const replyResponse = await server.inject({
+                method: "POST",
+                url: `/threads/${JSON.parse(threadResponse.payload).data.addedThread.id}/comments/${JSON.parse(commentResponse.payload).data.addedComment.id}/replies`,
+                payload: requestPayload,
                 headers: {
                     Authorization: `Bearer ${JSON.parse(responseAuth.payload).data.accessToken}`,
                 },
@@ -193,16 +153,22 @@ describe("/threads endpoint", () => {
             // Action
 
             const response = await server.inject({
-                method: "GET",
-                url: `/threads/${JSON.parse(threadResponse.payload).data.addedThread.id}`,
+                method: "DELETE",
+                url: `/threads/${JSON.parse(threadResponse.payload).data.addedThread.id}/comments/${JSON.parse(commentResponse.payload).data.addedComment.id}/replies/${JSON.parse(replyResponse.payload).data.addedReply.id}`,
+                headers: {
+                    Authorization: `Bearer ${JSON.parse(responseAuth.payload).data.accessToken}`,
+                },
             });
 
             // Assert
+
             const responseJson = JSON.parse(response.payload);
+
+            const replies = await RepliesTableTestHelper.findReplyById(JSON.parse(replyResponse.payload).data.addedReply.id);
+            console.log(replies);
             expect(response.statusCode).toEqual(200);
-            expect(responseJson.data.thread).toBeDefined();
-            expect(responseJson.data.thread.comments).toBeDefined();
-            expect(responseJson.data.thread.comments).toHaveLength(2);
+            expect(responseJson.status).toEqual("success");
+            expect(replies.is_delete).toEqual(true);
         });
     });
 });

@@ -39,7 +39,7 @@ class ThreadsHandler {
         const { threadId } = request.params;
 
         const thread = await getThreadDetailUseCase.execute(threadId);
-
+        console.log("thread", thread);
         return {
             status: "success",
             data: {

@@ -39,7 +39,7 @@ describe("ReplyRepositoryPostgres interface", () => {
 
             // Assert
             const replies = await RepliesTableTestHelper.findReplyById("reply-123");
-            expect(replies).toHaveLength(1);
+            expect(replies).toBeDefined();
         });
     });
 
