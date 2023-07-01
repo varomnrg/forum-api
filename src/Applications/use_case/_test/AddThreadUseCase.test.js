@@ -15,7 +15,7 @@ describe("AddThreadUseCase", () => {
         const mockAddedThread = new AddedThread({
             id: "thread-123",
             title: useCasePayload.title,
-            owner: "user-123",
+            owner: useCasePayload.owner,
         });
 
         // Calling the use case
@@ -37,7 +37,7 @@ describe("AddThreadUseCase", () => {
             new AddedThread({
                 id: "thread-123",
                 title: useCasePayload.title,
-                owner: "user-123",
+                owner: useCasePayload.owner,
             })
         );
 

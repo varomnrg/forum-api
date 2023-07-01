@@ -62,8 +62,6 @@ class ReplyRepositoryPostgres extends ReplyRepository {
             throw new NotFoundError("Reply tidak ditemukan");
         }
 
-        console.log(await this.getReplyById(id), "deleted reply");
-
         return result.rows[0].id;
     }
 

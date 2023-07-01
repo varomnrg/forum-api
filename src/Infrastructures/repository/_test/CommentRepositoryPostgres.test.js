@@ -4,6 +4,7 @@ const NewComment = require("../../../Domains/comments/entities/NewComment");
 const CommentsTableTestHelper = require("../../../../tests/CommentsTableTestHelper");
 const UsersTableTestHelper = require("../../../../tests/UsersTableTestHelper");
 const ThreadsTableTestHelper = require("../../../../tests/ThreadsTableTestHelper");
+const AuthenticationsTableTestHelper = require("../../../../tests/AuthenticationsTableTestHelper");
 
 describe("CommentRepository postgres", () => {
     afterEach(async () => {
@@ -46,6 +47,7 @@ describe("CommentRepository postgres", () => {
             const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
 
             await UsersTableTestHelper.addUser({ id: "user-123", username: "varo" });
+            await AuthenticationsTableTestHelper;
             await ThreadsTableTestHelper.addThread({});
             await CommentsTableTestHelper.addComment({});
 
@@ -55,29 +57,6 @@ describe("CommentRepository postgres", () => {
             // Assert
             const comments = await CommentsTableTestHelper.findCommentsById("comment-123");
             expect(comments.is_delete).toEqual(true);
-        });
-    });
-
-    describe("verifyCommentAccess function", () => {
-        beforeAll(async () => {
-            await UsersTableTestHelper.addUser({ id: "user-123", username: "varo" });
-            await ThreadsTableTestHelper.addThread({});
-            await CommentsTableTestHelper.addComment({});
-        });
-
-        afterAll(async () => {
-            await UsersTableTestHelper.cleanTable();
-            await ThreadsTableTestHelper.cleanTable();
-            await CommentsTableTestHelper.cleanTable();
-        });
-
-        it("should throw error when comment not owned by user", async () => {
-            // Arrange
-            const fakeIdGenerator = () => "123";
-            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
-
-            // Action & Assert
-            await expect(commentRepositoryPostgres.verifyCommentAccess("comment-123", "user-321")).rejects.toThrowError("Anda tidak berhak mengakses resource ini");
         });
     });
 
@@ -109,6 +88,34 @@ describe("CommentRepository postgres", () => {
 
             // Action & Assert
             await expect(commentRepositoryPostgres.getCommentById("comment-123")).rejects.toThrowError("Comment tidak ditemukan");
+        });
+    });
+
+    describe("verifyCommentAccess function", () => {
+        it("should not throw error when comment owned by user", async () => {
+            // Arrange
+            await UsersTableTestHelper.addUser({ id: "user-123", username: "varo" });
+            await ThreadsTableTestHelper.addThread({});
+            await CommentsTableTestHelper.addComment({});
+
+            const fakeIdGenerator = () => "123";
+            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+
+            // Action & Assert
+            await expect(commentRepositoryPostgres.verifyCommentAccess("comment-123", "user-123")).resolves.not.toThrowError("Anda tidak berhak mengakses resource ini");
+        });
+
+        it("should throw error when comment not owned by user", async () => {
+            // Arrange
+            await UsersTableTestHelper.addUser({ id: "user-123", username: "varo" });
+            await ThreadsTableTestHelper.addThread({});
+            await CommentsTableTestHelper.addComment({});
+
+            const fakeIdGenerator = () => "123";
+            const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+
+            // Action & Assert
+            await expect(commentRepositoryPostgres.verifyCommentAccess("comment-123", "user-321")).rejects.toThrowError("Anda tidak berhak mengakses resource ini");
         });
     });
 

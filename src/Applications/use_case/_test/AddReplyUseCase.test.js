@@ -18,7 +18,7 @@ describe("AddReplyUseCase", () => {
         const mockAddedReply = new AddedReply({
             id: "reply-123",
             content: useCasePayload.content,
-            owner: "user-123",
+            owner: useCasePayload.owner,
         });
 
         // Calling the use case
@@ -44,7 +44,7 @@ describe("AddReplyUseCase", () => {
         // Assert
         expect(addedReply).toStrictEqual(
             new AddedReply({
-                id: "reply-123",
+                id: mockAddedReply.id,
                 content: useCasePayload.content,
                 owner: useCasePayload.owner,
             })

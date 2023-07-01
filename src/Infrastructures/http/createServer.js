@@ -22,7 +22,7 @@ const createServer = async (container) => {
     ]);
 
     server.ext("onPostResponse", (request, h) => {
-        console.log(new Date().toISOString() + ": " + request.method.toUpperCase() + " " + request.path + " --> " + request.response.statusCode);
+        //console.log(new Date().toISOString() + ": " + request.method.toUpperCase() + " " + request.path + " --> " + request.response.statusCode);
         return h.continue;
     });
 

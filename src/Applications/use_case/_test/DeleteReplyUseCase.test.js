@@ -28,6 +28,7 @@ describe("DeleteReplyUseCase", () => {
     });
 
     it("should orchestrating the delete reply action correctly", async () => {
+        // Arrange
         const useCasePayload = {
             threadId: "thread-123",
             commentId: "comment-123",
@@ -50,8 +51,10 @@ describe("DeleteReplyUseCase", () => {
             commentRepository: mockCommentRepository,
         });
 
+        // Action
         await deleteReplyUseCase.execute(useCasePayload);
 
+        // Assert
         expect(mockThreadRepository.isThreadExist).toHaveBeenCalledWith(useCasePayload.threadId);
         expect(mockCommentRepository.isCommentExist).toHaveBeenCalledWith(useCasePayload.commentId);
         expect(mockReplyRepository.verifyReplyAccess).toHaveBeenCalledWith(useCasePayload.replyId, useCasePayload.owner);
