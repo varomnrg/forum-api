@@ -24,12 +24,18 @@ describe("GetThreadDetailUseCase", () => {
                 username: "user",
                 date: "date",
                 content: "comment",
+                owner: "user-123",
+                threadId: "thread-123",
+                is_delete: true,
             },
             {
                 id: "comment-124",
                 username: "user",
                 date: "date",
                 content: "comment",
+                owner: "user-123",
+                threadId: "thread-123",
+                is_delete: false,
             },
         ];
 
@@ -37,10 +43,10 @@ describe("GetThreadDetailUseCase", () => {
             {
                 id: "reply-BErOXUSefjwWGW1Z10Ihk",
                 comment_id: "comment-124",
-                content: "**balasan telah dihapus**",
+                content: "testing",
                 date: "2021-08-08T07:59:48.766Z",
                 username: "johndoe",
-                is_deleted: true,
+                is_delete: true,
             },
             {
                 id: "reply-xNBtm9HPR-492AeiimpfN",
@@ -48,9 +54,46 @@ describe("GetThreadDetailUseCase", () => {
                 content: "sebuah balasan",
                 date: "2021-08-08T08:07:01.522Z",
                 username: "dicoding",
-                is_deleted: false,
+                is_delete: false,
             },
         ];
+
+        const expectedThreadDetail = new DetailThread({
+            id: mockThreadDetail.id,
+            title: mockThreadDetail.title,
+            body: mockThreadDetail.body,
+            date: mockThreadDetail.date,
+            username: mockThreadDetail.username,
+            comments: [
+                {
+                    id: mockComment[0].id,
+                    username: mockComment[0].username,
+                    date: mockComment[0].date,
+                    content: "**komentar telah dihapus**",
+                    replies: [],
+                },
+                {
+                    id: mockComment[1].id,
+                    username: mockComment[1].username,
+                    date: mockComment[1].date,
+                    content: mockComment[1].content,
+                    replies: [
+                        {
+                            id: mockReplies[0].id,
+                            username: mockReplies[0].username,
+                            date: mockReplies[0].date,
+                            content: "**balasan telah dihapus**",
+                        },
+                        {
+                            id: mockReplies[1].id,
+                            username: mockReplies[1].username,
+                            date: mockReplies[1].date,
+                            content: mockReplies[1].content,
+                        },
+                    ],
+                },
+            ],
+        });
 
         // Calling the use case
         const mockThreadRepository = new ThreadRepository();
@@ -73,25 +116,10 @@ describe("GetThreadDetailUseCase", () => {
         const threadDetail = getThreadDetailUseCase.execute(threadId);
 
         // Assert
-        const expectedThreadDetail = new DetailThread({
-            id: mockThreadDetail.id,
-            title: mockThreadDetail.title,
-            body: mockThreadDetail.body,
-            date: mockThreadDetail.date,
-            username: mockThreadDetail.username,
-            comments: mockComment,
-        });
+        await expect(threadDetail).resolves.toStrictEqual(expectedThreadDetail);
 
-        // Assert
-        await expect(threadDetail).resolves.toEqual(
-            expect.objectContaining({
-                id: expectedThreadDetail.id,
-                title: expectedThreadDetail.title,
-                body: expectedThreadDetail.body,
-                date: expectedThreadDetail.date,
-                username: expectedThreadDetail.username,
-                comments: expect.any(Array),
-            })
-        );
+        expect(mockThreadRepository.getThreadById).toBeCalledWith(threadId);
+        expect(mockCommentRepository.getCommentsByThreadId).toBeCalledWith(threadId);
+        expect(mockReplyRepository.getRepliesByThreadId).toBeCalledWith(threadId);
     });
 });

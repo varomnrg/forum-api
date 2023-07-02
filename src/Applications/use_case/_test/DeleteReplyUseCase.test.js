@@ -43,7 +43,7 @@ describe("DeleteReplyUseCase", () => {
         mockThreadRepository.isThreadExist = jest.fn(() => Promise.resolve());
         mockCommentRepository.isCommentExist = jest.fn(() => Promise.resolve());
         mockReplyRepository.verifyReplyAccess = jest.fn(() => Promise.resolve());
-        mockReplyRepository.deleteReply = jest.fn(() => Promise.resolve());
+        mockReplyRepository.deleteReply = jest.fn(() => Promise.resolve("reply-123"));
 
         const deleteReplyUseCase = new DeleteReplyUseCase({
             replyRepository: mockReplyRepository,

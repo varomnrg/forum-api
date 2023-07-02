@@ -4,6 +4,7 @@ const ThreadsTableTestHelper = require("../../../../tests/ThreadsTableTestHelper
 const UsersTableTestHelper = require("../../../../tests/UsersTableTestHelper");
 const CommentsTableTestHelper = require("../../../../tests/CommentsTableTestHelper");
 const ReplyRepositoryPostgres = require("../ReplyRepositoryPostgres");
+const AddedReply = require("../../../Domains/replies/entities/AddedReply");
 
 describe("ReplyRepositoryPostgres interface", () => {
     afterEach(async () => {
@@ -35,11 +36,24 @@ describe("ReplyRepositoryPostgres interface", () => {
             const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, fakeIdGenerator);
 
             // Action
-            await replyRepositoryPostgres.addReply(newReply);
+            const result = await replyRepositoryPostgres.addReply(newReply);
 
             // Assert
             const replies = await RepliesTableTestHelper.findReplyById("reply-123");
-            expect(replies).toBeDefined();
+
+            expect(replies.id).toEqual("reply-123");
+            expect(replies.content).toEqual("reply");
+            expect(replies.owner).toEqual("user-123");
+            expect(replies.comment_id).toEqual("comment-123");
+            expect(replies.thread_id).toEqual("thread-123");
+
+            expect(result).toStrictEqual(
+                new AddedReply({
+                    id: "reply-123",
+                    content: newReply.content,
+                    owner: newReply.owner,
+                })
+            );
         });
     });
 
@@ -69,7 +83,10 @@ describe("ReplyRepositoryPostgres interface", () => {
             expect(reply.id).toEqual("reply-123");
             expect(reply.content).toEqual("reply");
             expect(reply.owner).toEqual("user-123");
+            expect(reply.thread_id).toEqual("thread-123");
             expect(reply.comment_id).toEqual("comment-123");
+            expect(reply.date).toEqual(expect.any(String));
+            expect(reply.is_delete).toEqual(false);
         });
 
         it("should throw NotFoundError when reply not found", async () => {
@@ -100,7 +117,6 @@ describe("ReplyRepositoryPostgres interface", () => {
             const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, fakeIdGenerator);
 
             await replyRepositoryPostgres.addReply(newReply);
-
             // Action
             const replies = await replyRepositoryPostgres.getRepliesByThreadId("thread-123");
 
@@ -110,6 +126,8 @@ describe("ReplyRepositoryPostgres interface", () => {
             expect(replies[0].content).toEqual("reply");
             expect(replies[0].username).toEqual("varo");
             expect(replies[0].comment_id).toEqual("comment-123");
+            expect(replies[0].date).toEqual(expect.any(String));
+            expect(replies[0].is_delete).toEqual(false);
         });
     });
 
