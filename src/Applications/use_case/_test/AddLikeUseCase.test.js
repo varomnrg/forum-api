@@ -1,15 +1,16 @@
 const CommentRepository = require("../../../Domains/comments/CommentRepository");
 const ThreadRepository = require("../../../Domains/threads/ThreadRepository");
-const DeleteCommentUseCase = require("../DeleteCommentUseCase");
+const LikeRepository = require("../../../Domains/likes/LikeRepository");
+const AddLikeUseCase = require("../AddLikeUseCase");
 
-describe("DeleteCommentUseCase", () => {
+describe("AddLikeUseCase", () => {
     it("should throw error if use case payload not contain needed property", async () => {
         // Arrange
         const useCasePayload = {};
-        const deleteCommentUseCase = new DeleteCommentUseCase({});
+        const addLikeUseCase = new AddLikeUseCase({});
 
         // Action & Assert
-        await expect(deleteCommentUseCase.execute(useCasePayload)).rejects.toThrowError("DELETE_COMMENT_USE_CASE.NOT_CONTAIN_NEEDED_PROPERTY");
+        await expect(addLikeUseCase.execute(useCasePayload)).rejects.toThrowError("ADD_LIKE_USE_CASE.NOT_CONTAIN_NEEDED_PROPERTY");
     });
 
     it("should throw error if use case payload not meet data type specification", async () => {
@@ -20,10 +21,10 @@ describe("DeleteCommentUseCase", () => {
             owner: 123,
         };
 
-        const deleteCommentUseCase = new DeleteCommentUseCase({});
+        const addLikeUseCase = new AddLikeUseCase({});
 
         // Action & Assert
-        await expect(deleteCommentUseCase.execute(useCasePayload)).rejects.toThrowError("DELETE_COMMENT_USE_CASE.NOT_MEET_DATA_TYPE_SPECIFICATION");
+        await expect(addLikeUseCase.execute(useCasePayload)).rejects.toThrowError("ADD_LIKE_USE_CASE.NOT_MEET_DATA_TYPE_SPECIFICATION");
     });
 
     it("should orchestrating the delete comment action correctly", async () => {
@@ -35,22 +36,24 @@ describe("DeleteCommentUseCase", () => {
         };
         const mockCommentRepository = new CommentRepository();
         const mockThreadRepository = new ThreadRepository();
+        const mockLikeRepository = new LikeRepository();
 
         mockThreadRepository.isThreadExist = jest.fn().mockImplementation(() => Promise.resolve());
         mockCommentRepository.verifyCommentAccess = jest.fn().mockImplementation(() => Promise.resolve());
-        mockCommentRepository.deleteComment = jest.fn().mockImplementation(() => Promise.resolve("comment-123"));
+        mockLikeRepository.addLike = jest.fn().mockImplementation(() => Promise.resolve("like-123"));
 
-        const deleteCommentUseCase = new DeleteCommentUseCase({
-            commentRepository: mockCommentRepository,
+        const addLikeUseCase = new AddLikeUseCase({
+            likeRepository: mockLikeRepository,
             threadRepository: mockThreadRepository,
+            commentRepository: mockCommentRepository,
         });
 
         // Action
-        await deleteCommentUseCase.execute(useCasePayload);
+        await addLikeUseCase.execute(useCasePayload);
 
         // Assert
         expect(mockThreadRepository.isThreadExist).toHaveBeenCalledWith(useCasePayload.threadId);
         expect(mockCommentRepository.verifyCommentAccess).toHaveBeenCalledWith(useCasePayload.commentId, useCasePayload.owner);
-        expect(mockCommentRepository.deleteComment).toHaveBeenCalledWith(useCasePayload.commentId);
+        expect(mockLikeRepository.addLike).toHaveBeenCalledWith(useCasePayload);
     });
 });

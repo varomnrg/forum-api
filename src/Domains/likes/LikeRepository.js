@@ -7,7 +7,7 @@ class LikeRepository {
         throw new Error("LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED");
     }
 
-    async getLikesByCommentId() {
+    async getLikesByThreadId() {
         throw new Error("LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED");
     }
 }
