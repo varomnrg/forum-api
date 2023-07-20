@@ -8,9 +8,17 @@ class AddLikeUseCase {
     async execute(useCasePayload) {
         this._validatePayload(useCasePayload);
         const { threadId, commentId, owner } = useCasePayload;
+
         await this._threadRepository.isThreadExist(threadId);
-        await this._commentRepository.verifyCommentAccess(commentId, owner);
-        return this._likeRepository.addLike(useCasePayload);
+        await this._commentRepository.isCommentExist(commentId);
+
+        const isLiked = await this._likeRepository.checkLike(useCasePayload);
+
+        if (isLiked) {
+            return this._likeRepository.removeLike(useCasePayload);
+        } else {
+            return this._likeRepository.addLike(useCasePayload);
+        }
     }
 
     _validatePayload(payload) {

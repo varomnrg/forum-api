@@ -8,6 +8,7 @@ describe("LikeRepository interface", () => {
         // Action and Assert
         await expect(likeRepository.addLike({})).rejects.toThrowError("LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED");
         await expect(likeRepository.removeLike({})).rejects.toThrowError("LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED");
+        await expect(likeRepository.checkLike({})).rejects.toThrowError("LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED");
         await expect(likeRepository.getLikesByThreadId({})).rejects.toThrowError("LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED");
     });
 });
