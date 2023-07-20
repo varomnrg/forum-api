@@ -3,6 +3,7 @@ const DetailThread = require("../../../Domains/threads/entities/DetailThread");
 const ThreadRepository = require("../../../Domains/threads/ThreadRepository");
 const CommentRepository = require("../../../Domains/comments/CommentRepository");
 const ReplyRepository = require("../../../Domains/replies/ReplyRepository");
+const LikeRepository = require("../../../Domains/likes/LikeRepository");
 
 describe("GetThreadDetailUseCase", () => {
     it("should orchestrating the get thread detail action correctly", async () => {
@@ -39,6 +40,27 @@ describe("GetThreadDetailUseCase", () => {
             },
         ];
 
+        const mockLikes = [
+            {
+                id: "like-123",
+                threadId: "thread-123",
+                comment_id: "comment-124",
+                owner: "user-123",
+            },
+            {
+                id: "like-124",
+                threadId: "thread-123",
+                comment_id: "comment-124",
+                owner: "user-124",
+            },
+            {
+                id: "like-125",
+                threadId: "thread-123",
+                comment_id: "comment-123",
+                owner: "user-125",
+            },
+        ];
+
         const mockReplies = [
             {
                 id: "reply-BErOXUSefjwWGW1Z10Ihk",
@@ -71,6 +93,7 @@ describe("GetThreadDetailUseCase", () => {
                     date: mockComment[0].date,
                     content: "**komentar telah dihapus**",
                     replies: [],
+                    likeCount: 1,
                 },
                 {
                     id: mockComment[1].id,
@@ -91,6 +114,7 @@ describe("GetThreadDetailUseCase", () => {
                             content: mockReplies[1].content,
                         },
                     ],
+                    likeCount: 2,
                 },
             ],
         });
@@ -99,17 +123,20 @@ describe("GetThreadDetailUseCase", () => {
         const mockThreadRepository = new ThreadRepository();
         const mockCommentRepository = new CommentRepository();
         const mockReplyRepository = new ReplyRepository();
+        const mockLikeRepository = new LikeRepository();
 
         // Mock Functions
         mockThreadRepository.getThreadById = jest.fn().mockImplementation(() => Promise.resolve(mockThreadDetail));
         mockCommentRepository.getCommentsByThreadId = jest.fn().mockImplementation(() => Promise.resolve(mockComment));
         mockReplyRepository.getRepliesByThreadId = jest.fn().mockImplementation(() => Promise.resolve(mockReplies));
+        mockLikeRepository.getLikesByThreadId = jest.fn().mockImplementation(() => Promise.resolve(mockLikes));
 
         // Creating use case instance
         const getThreadDetailUseCase = new GetThreadDetailUseCase({
             threadRepository: mockThreadRepository,
             commentRepository: mockCommentRepository,
             replyRepository: mockReplyRepository,
+            likeRepository: mockLikeRepository,
         });
 
         // Action

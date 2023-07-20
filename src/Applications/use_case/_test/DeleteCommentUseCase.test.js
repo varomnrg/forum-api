@@ -1,6 +1,6 @@
 const CommentRepository = require("../../../Domains/comments/CommentRepository");
-const DeleteCommentUseCase = require("../DeleteCommentUseCase");
 const ThreadRepository = require("../../../Domains/threads/ThreadRepository");
+const DeleteCommentUseCase = require("../DeleteCommentUseCase");
 
 describe("DeleteCommentUseCase", () => {
     it("should throw error if use case payload not contain needed property", async () => {
